@@ -1,4 +1,8 @@
 import random
+import os
+
+def clear():
+    os.system('cls')
 
 class Player():
     def __init__(self, hand, money):
@@ -18,29 +22,27 @@ class Table():
         self.hands = hands
         return hands
     def print_hand(self):
-        for card in self.deck:
+        player_hand = [self.hands[0],self.hands[self.players]]
+        for card in self.hands:
             value = card[0]
-            color = card[1]
             if value == 1:
-                value = 'A'
+                card[0] = 'A'
             elif value == 10:
-                value = 'T'
+                card[0] = 'T'
             elif value == 11:
-                value = 'J'
+                card[0] = 'J'
             elif value == 12:
-                value = 'Q'
+                card[0] = 'Q'
             elif value == 13:
-                value = 'K'
-            print("""
-                ┌────────┐  
-                │      %s │
-                │        │
-                │   %s    │
-                │        │
-                │        │
-                │        │
-                └────────┘
-            """ % (color, value))
+                card[0] = 'K'
+        print("""
+            ┌────────┐ ┌────────┐
+            │      %s │ │      %s │
+            │   %s    │ │   %s    │
+            │        │ │        │
+            │        │ │        │
+            └────────┘ └────────┘
+            """ % (player_hand[0][1], player_hand[1][1], player_hand[0][0], player_hand[1][0]))
     def flop(self):
         self.board=[]
         random.shuffle(self.deck)
@@ -132,13 +134,14 @@ def main():
     deck = [[value, color] for value in range(1,14) for color in colors]
     # instantiate game with player count
     new_table = Table(5)
-    # shuffle
-    hands = new_table.shuffle(deck)
-    # temp prove its working
-    player_hand = new_table.deal()
-    # new_table.print_hand(player_hand)
+    # create hands
+    new_table.shuffle(deck)
 
+    player_hand = new_table.deal()
+    print(player_hand)
+    new_table.print_hand()
     new_table.flop()
     new_table.turn()
     new_table.river()
 main()
+
