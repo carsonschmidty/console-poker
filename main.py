@@ -68,7 +68,6 @@ class Table():
         for x in range(3):
             self.board.append(self.deck[x])
             self.deck.pop(x)
- 
         cards = self.board
         for card in cards:
             value = card[0]
@@ -211,8 +210,10 @@ class Table():
             # flush
             colors = ['♥','♦','♠','♣']
             suits = []
+            # create list of suits
             for x in range(len(sorted_player_board)):
                 suits.append(sorted_player_board[x][1])
+            # loop through 4 suits
             for i in range(4):
                 suit_count = suits.count(colors[i])
                 if suit_count >= 5:
@@ -225,24 +226,30 @@ class Table():
 
             #get straight
             straight_board = []
+            # create a straight list to make it easier to work with
             for x in sorted_player_board:
                 if x[0] not in straight_board:
                     straight_board.append(x[0])
+            # add ace high straight possibility
             for x in straight_board:
                 if x == 1:
                     straight_board.append(x)
                     break
             for x in range(len(straight_board)):
                 try:
+                    # step and increment through 5 values as many times as possible
                     if straight_board[x] + 1 == straight_board[x+1]:
                         if straight_board[x+1] + 1 == straight_board[x+2]:
                             if straight_board[x+2] + 1 == straight_board[x+3]:
                                 if straight_board[x+3] + 1 == straight_board[x+4]:
                                     score['straight'] = straight_board[x+4]
+                                # ace high flush
                                 elif straight_board[x+3] == 13 and straight_board[0] == 1:
                                     score['straight'] = 1
+                                    # royal flush
                                     if score['flush'] != None:
                                         score['royal'] = True
+                                # ascending ace high 
                                 elif straight_board[x] == 1:
                                     score['straight'] = 1
                 except:
@@ -265,7 +272,6 @@ class Table():
             # straight flush
             if score['straight'] != None and score['flush'] != None:
                 score['str_flush'] = score['straight']
-            # royal flush
             
             # print(score)
             players_score[key] = score
