@@ -162,7 +162,6 @@ class Table():
                 'str_flush' : None,
                 'royal' : None
             }
-
             player_board = self.board
             #p1 cards
             cards = self.player_hands[key]
@@ -170,18 +169,6 @@ class Table():
             #add players cards to board
             player_board.append(cards[0])
             player_board.append(cards[1])
-            # #suit of first card
-            # cards[0][1]
-            # #suit of second card
-            # cards[1][1]
-            # #value of first card
-            # cards[0][0]
-            # #value of second card
-            # cards[1][0]
-
-            #assign player to score dictionary
-
-
             #sort player board
             for card in player_board:
                 value = card[0]
@@ -196,13 +183,11 @@ class Table():
                 elif value == 'K':
                     card[0] = 13
             sorted_player_board = sorted(player_board, key=itemgetter(0), reverse=False)
-
             #get high card
             score['high'] = sorted_player_board[len(player_board)-1][0]
             for cards in sorted_player_board:
                 if cards[0] == 1:
                     score['high'] = 1
-
             #get pair
             for x in range(len(sorted_player_board)):
                 try:
@@ -213,7 +198,6 @@ class Table():
                             break
                 except:
                     pass
-            
             #get trip
             for x in range(len(sorted_player_board)):
                 try:
@@ -224,14 +208,11 @@ class Table():
                             break
                 except:
                     pass    
-
             #get straight
             straight_board = []
             for x in sorted_player_board:
                 if x[0] not in straight_board:
                     straight_board.append(x[0])
-            print(straight_board)
-            print(straight_board)
             for x in range(len(straight_board)):
                 try:
                     if straight_board[x] + 1 == straight_board[x+1]:
@@ -251,14 +232,17 @@ class Table():
                                     score['straight'] = straight_board[x+4]
                 except:
                     pass
-            print(score)
-            print(sorted_player_board)
+            # flush
 
+            # full house, check if score['pair'] and score['three'] are filled, if so full house of trips
+
+            # quad same logic as pair and threes
+
+            # straight flush
+            print(score)
             players_score[key] = score
             player_board.pop(6)
             player_board.pop(5)
-
-
 
 def main():
     world = World(None, 4)
