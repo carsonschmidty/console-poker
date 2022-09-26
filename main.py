@@ -7,7 +7,7 @@ def clear():
     os.system('cls')
 
 class World:
-    def __init__(self, behavior, players):
+    def __init__(self, behavior, players, colors):
         self.behavior = behavior
         self.players = players
         pass
@@ -82,7 +82,6 @@ class Table():
                 card[0] = 'Q'
             elif value == 13:
                 card[0] = 'K'
-        print(cards)
         print("""
             ┌────────┐ ┌────────┐ ┌────────┐
             │      %s │ │      %s │ │      %s │
@@ -145,9 +144,8 @@ class Table():
         """ % (cards[0][1], cards[1][1], cards[2][1], cards[3][1], cards[4][1],cards[0][0], cards[1][0], cards[2][0], cards[3][0], cards[4][0]))  
         self.board = self.rivercard
 
-    def check(self):
+    def player_score(self):
         # compare self.board to each players hand
-
         players_score = {}
         # find high card
         for key in self.player_hands:
@@ -159,6 +157,7 @@ class Table():
                 'straight' : None,
                 'flush' : None,
                 'quad' : None,
+                'full' : None,
                 'str_flush' : None,
                 'royal' : None
             }
@@ -208,48 +207,76 @@ class Table():
                             break
                 except:
                     pass    
+
+            # flush
+            colors = ['♥','♦','♠','♣']
+            suits = []
+            for x in range(len(sorted_player_board)):
+                suits.append(sorted_player_board[x][1])
+            for i in range(4):
+                suit_count = suits.count(colors[i])
+                if suit_count >= 5:
+                    for card in sorted_player_board:
+                        if card[1] == colors[i]:
+                            score['flush'] = [[card[0]],[colors[i]]]
+                    if sorted_player_board[0][0] == 1:
+                        score['flush'] = [1,[colors[i]]] 
+                    break
+
             #get straight
             straight_board = []
             for x in sorted_player_board:
                 if x[0] not in straight_board:
                     straight_board.append(x[0])
+            for x in straight_board:
+                if x == 1:
+                    straight_board.append(x)
+                    break
             for x in range(len(straight_board)):
                 try:
                     if straight_board[x] + 1 == straight_board[x+1]:
                         if straight_board[x+1] + 1 == straight_board[x+2]:
                             if straight_board[x+2] + 1 == straight_board[x+3]:
                                 if straight_board[x+3] + 1 == straight_board[x+4]:
-                                    # ace high straight
-                                    if straight_board[x+4] == 13:
-                                        for cards in straight_board:
-                                            if cards == 1:
-                                                score['straight'] = 1
-                                    # ace ascending straight
-                                    if straight_board[x] == 1:
-                                        for cards in straight_board:
-                                            if cards == 1:
-                                                score['straight'] = 1
                                     score['straight'] = straight_board[x+4]
+                                elif straight_board[x+3] == 13 and straight_board[0] == 1:
+                                    score['straight'] = 1
+                                    if score['flush'] != None:
+                                        score['royal'] = True
+                                elif straight_board[x] == 1:
+                                    score['straight'] = 1
                 except:
                     pass
-            # flush
 
             # full house, check if score['pair'] and score['three'] are filled, if so full house of trips
-
+            if score['pair'] != None and score['three'] != None:
+                if score['pair'] != score['three']:
+                    score['full'] = score['three']
             # quad same logic as pair and threes
-
+            for x in range(len(sorted_player_board)):
+                try:
+                    if sorted_player_board[x][0] == sorted_player_board[x+1][0] and sorted_player_board[x][0] == sorted_player_board[x+2][0] and sorted_player_board[x][0] == sorted_player_board[x+3][0]:
+                        score['quad'] = sorted_player_board[x][0]
+                        if sorted_player_board[x][0] == 1:
+                            score['quad'] = sorted_player_board[x][0]
+                            break
+                except:
+                    pass    
             # straight flush
-            print(score)
+            if score['straight'] != None and score['flush'] != None:
+                score['str_flush'] = score['straight']
+            # royal flush
+            
+            # print(score)
             players_score[key] = score
             player_board.pop(6)
             player_board.pop(5)
 
 def main():
-    world = World(None, 4)
-    # create deck
     colors = ['♥','♦','♠','♣']
     deck = [[value, color] for value in range(1,14) for color in colors]
 
+    world = World(None, 4, colors)
     # instantiate game with player count
     new_table = Table(world.players, deck)
     # create hands
@@ -260,7 +287,7 @@ def main():
     new_table.turn()
     new_table.river()
 
-    new_table.check()
+    new_table.player_score()
 
 main()
 
