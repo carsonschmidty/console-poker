@@ -2,6 +2,7 @@ import random
 import os
 from operator import itemgetter
 from turtle import pos
+from winsound import PlaySound
 
 
 from behaviors import Action
@@ -133,11 +134,44 @@ class Table():
         """ % (cards[0][1], cards[1][1], cards[2][1], cards[3][1], cards[4][1],cards[0][0], cards[1][0], cards[2][0], cards[3][0], cards[4][0]))  
         self.board = self.rivercard
 
+    def get_score(self, num):
+        if num == 1:
+            score = 377
+        elif num == 2:
+            score = 1
+        elif num == 3:
+            score = 2
+        elif num == 4:
+            score = 3
+        elif num == 5:
+            score = 5
+        elif num == 6:
+            score = 8
+        elif num == 7:
+            score = 13
+        elif num == 8:
+            score = 21
+        elif num == 9:
+            score = 34
+        elif num == 10:
+            score = 55
+        elif num == 11:
+            score = 89
+        elif num == 12:
+            score = 144
+        elif num == 13:
+            score = 233
+        return score
+
     def player_score(self):
         # compare self.board to each players hand
         players_score = []
+        players_score_num = []
+
         # find high card
         for key in self.player_hands:
+            # score hands 
+            score_num = 0
             score = {
                 'cardone' : None,
                 'cardtwo' : None,
@@ -156,8 +190,9 @@ class Table():
 
             #p1 cards
             cards = self.player_hands[key]
-            score['cardone'] = cards[0][0]
-            score['cardtwo'] = cards[1][0]
+           
+            score['cardone'] = cards[0]
+            score['cardtwo'] = cards[1]
             #add players cards to board
             player_board.append(cards[0])
             player_board.append(cards[1])
@@ -177,9 +212,11 @@ class Table():
             sorted_player_board = sorted(player_board, key=itemgetter(0), reverse=False)
             #get high card
             score['high'] = sorted_player_board[len(player_board)-1][0]
+            score_num = self.get_score(sorted_player_board[len(player_board)-1][0]) + self.get_score(sorted_player_board[len(player_board)-2][0]) + self.get_score(sorted_player_board[len(player_board)-3][0]) + self.get_score(sorted_player_board[len(player_board)-4][0])
             for cards in sorted_player_board:
                 if cards[0] == 1:
                     score['high'] = 1
+                    score_num = self.get_score(cards[0]) + self.get_score(sorted_player_board[len(player_board)-2][0]) + self.get_score(sorted_player_board[len(player_board)-3][0]) + self.get_score(sorted_player_board[len(player_board)-4][0])
             #get pair
             pair_count = 0
             for x in range(len(sorted_player_board)):
@@ -187,24 +224,28 @@ class Table():
                     if sorted_player_board[x][0] == sorted_player_board[x+1][0]:
                         pair_count += 1 
                         score['pair'] = sorted_player_board[x][0]
+                        score_num = 1000 + self.get_score(sorted_player_board[x][0]) + self.get_score(cards[0][0]) + self.get_score(cards[1][0])
                         if sorted_player_board[x][0] == 1:
                             score['pair'] = sorted_player_board[x][0]
+                            score_num = 1000 + 377 + self.get_score(cards[0][0]) + self.get_score(cards[1][0])
                             break
                         if pair_count == 2:
                             score['twopair'] = sorted_player_board[x][0]
-
+                            score_num = 3000 + self.get_score(sorted_player_board[x][0]) + self.get_score(cards[0][0]) + self.get_score(cards[1][0])
+                            if sorted_player_board[x][0] == 1:
+                                score['twopair'] = sorted_player_board[x][0]
+                                score_num = 3000 + 377 + self.get_score(cards[0][0]) + self.get_score(cards[1][0])
                 except:
                     pass
-
-
-
             #get trip
             for x in range(len(sorted_player_board)):
                 try:
                     if sorted_player_board[x][0] == sorted_player_board[x+1][0] and sorted_player_board[x][0] == sorted_player_board[x+2][0]:
                         score['three'] = sorted_player_board[x][0]
+                        score_num = 5000 + self.get_score(sorted_player_board[x][0]) + self.get_score(cards[0][0]) + self.get_score(cards[1][0])
                         if sorted_player_board[x][0] == 1:
                             score['three'] = sorted_player_board[x][0]
+                            score_num = 5000 + 377 + self.get_score(cards[0][0]) + self.get_score(cards[1][0])
                             break
                 except:
                     pass    
@@ -212,6 +253,9 @@ class Table():
             # flush
             colors = ['♥','♦','♠','♣']
             suits = []
+
+            player_hand = [score['cardone'],score['cardtwo']]
+            sorted_player_hand = sorted(player_hand, key=itemgetter(0), reverse=False)            
             # create list of suits
             for x in range(len(sorted_player_board)):
                 suits.append(sorted_player_board[x][1])
@@ -219,11 +263,13 @@ class Table():
             for i in range(4):
                 suit_count = suits.count(colors[i])
                 if suit_count >= 5:
-                    for card in sorted_player_board:
+                    for card in sorted_player_hand:
                         if card[1] == colors[i]:
-                            score['flush'] = [[card[0]],[colors[i]]]
-                    if sorted_player_board[0][0] == 1:
-                        score['flush'] = [1,[colors[i]]] 
+                            score['flush'] = card[0]
+                            score_num = 9000 + self.get_score(card[0])
+                        elif card[0] == 1:
+                            score['flush'] = 1
+                            score_num = 9000 + 377
                     break
 
             #get straight
@@ -245,15 +291,19 @@ class Table():
                             if straight_board[x+2] + 1 == straight_board[x+3]:
                                 if straight_board[x+3] + 1 == straight_board[x+4]:
                                     score['straight'] = straight_board[x+4]
-                                # ace high flush
+                                    score_num = 7000 + self.get_score(straight_board[x+4])
+                                # ace high descending
                                 elif straight_board[x+3] == 13 and straight_board[0] == 1:
                                     score['straight'] = 1
+                                    score_num = 7000 + 377
                                     # royal flush
                                     if score['flush'] != None:
                                         score['royal'] = True
+                                        score_num = 17000
                                 # ascending ace high 
                                 elif straight_board[x] == 1:
                                     score['straight'] = 1
+                                    score_num = 7000 + 377
                 except:
                     pass
 
@@ -261,33 +311,68 @@ class Table():
             if score['pair'] != None and score['three'] != None:
                 if score['pair'] != score['three']:
                     score['full'] = score['three']
+                    score_num = 11000 + self.get_score(score['full'])
             # quad same logic as pair and threes
             for x in range(len(sorted_player_board)):
                 try:
                     if sorted_player_board[x][0] == sorted_player_board[x+1][0] and sorted_player_board[x][0] == sorted_player_board[x+2][0] and sorted_player_board[x][0] == sorted_player_board[x+3][0]:
                         score['quad'] = sorted_player_board[x][0]
+                        score_num = 13000 + self.get_score(score['quad'])
                         if sorted_player_board[x][0] == 1:
                             score['quad'] = sorted_player_board[x][0]
+                            score_num = 13000 + 377
                             break
                 except:
                     pass    
             # straight flush
             if score['straight'] != None and score['flush'] != None:
                 score['str_flush'] = score['straight']
-            
+                score_num = 15000 + self.get_score(score['str_flush'])
+
+
+            players_score_num.append(score_num)
             players_score.append(score)
             player_board.pop(6)
             player_board.pop(5)
         
-        highest_board = None
+        # extract highest combination of each player
+        winner = []
         for player in players_score:
-            for p in player:
-                if player[p] != None:
-                    highest_board = player[p]
-            if highest_board != None:
-                pass
+            for keys, value in player.items():
+                if player[keys] != None:
+                    highest_board = keys
+                    board_value = value
+            winner.append([highest_board,board_value])
+        
 
-        print(players_score)
+        # assign a ranking to each hand players to eachother
+        for index, value in enumerate(winner):
+            print("Player " + str(index+1) + ": " + value[0] + " of " + str(value[1]))
+        
+        high = max(players_score_num)
+        for x in players_score_num:
+            if x == high:
+                player_won = players_score_num.index(x) + 1
+
+
+        players_score_num = [(players_score_num[i], i) for i in range(len(players_score_num))]
+        players_score_num = sorted(players_score_num)
+
+        # determine if chop
+        players_score_num.sort()
+        for score in range(0, len(players_score_num)):
+            try:
+                if players_score_num[score][0] == players_score_num[score+1][0] and players_score_num[score][0] >= players_score_num[len(players_score_num)-1][0]:
+                    player_won = [players_score_num[score][1], players_score_num[score+1][1]]
+            except:
+                pass
+ 
+        # unsort
+        players_score_num = sorted(players_score_num, key=lambda t: t[1])
+
+        print("Player/s " + str(player_won) + " won!")
+
+        print(players_score_num)
         self.players_score=players_score
         return self.players_score
 
@@ -303,14 +388,9 @@ def main():
     new_table.shuffle()
     new_table.sort_hands()
 
-
     # position = world.first_player()
-
-
     # if world.pot != previous_pot
     previous_action = None
-
-
 
     world.pot = 0
     new_table.flop()
