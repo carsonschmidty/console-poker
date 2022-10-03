@@ -1,24 +1,14 @@
 import random
 import os
 from operator import itemgetter
+from turtle import pos
+
+
+from behaviors import Action
 
 # clears console
 def clear():
     os.system('cls')
-
-class World:
-    def __init__(self, behavior, players, colors):
-        self.behavior = behavior
-        self.players = players
-        pass
-
-# unfinished player class to handle player behaviour, betting, folding, etc
-class Player(World):
-    def __init__(self, money):
-        self.money = money
-    # algorithmically sorts hands into a dictionary of each player
-
-
 
 # instantiates a new game, called to progress rounds etc, has print capabilities
 class Table():
@@ -145,13 +135,15 @@ class Table():
 
     def player_score(self):
         # compare self.board to each players hand
-        players_score = {}
+        players_score = []
         # find high card
         for key in self.player_hands:
             score = {
-                'hand' : None,
+                'cardone' : None,
+                'cardtwo' : None,
                 'high' : None,
                 'pair' : None,
+                'twopair' : None,
                 'three' : None,
                 'straight' : None,
                 'flush' : None,
@@ -161,9 +153,11 @@ class Table():
                 'royal' : None
             }
             player_board = self.board
+
             #p1 cards
             cards = self.player_hands[key]
-            score['hand'] = cards
+            score['cardone'] = cards[0][0]
+            score['cardtwo'] = cards[1][0]
             #add players cards to board
             player_board.append(cards[0])
             player_board.append(cards[1])
@@ -187,15 +181,23 @@ class Table():
                 if cards[0] == 1:
                     score['high'] = 1
             #get pair
+            pair_count = 0
             for x in range(len(sorted_player_board)):
                 try:
                     if sorted_player_board[x][0] == sorted_player_board[x+1][0]:
+                        pair_count += 1 
                         score['pair'] = sorted_player_board[x][0]
                         if sorted_player_board[x][0] == 1:
                             score['pair'] = sorted_player_board[x][0]
                             break
+                        if pair_count == 2:
+                            score['twopair'] = sorted_player_board[x][0]
+
                 except:
                     pass
+
+
+
             #get trip
             for x in range(len(sorted_player_board)):
                 try:
@@ -273,27 +275,53 @@ class Table():
             if score['straight'] != None and score['flush'] != None:
                 score['str_flush'] = score['straight']
             
-            # print(score)
-            players_score[key] = score
+            players_score.append(score)
             player_board.pop(6)
             player_board.pop(5)
+        
+        highest_board = None
+        for player in players_score:
+            for p in player:
+                if player[p] != None:
+                    highest_board = player[p]
+            if highest_board != None:
+                pass
+
+        print(players_score)
+        self.players_score=players_score
+        return self.players_score
+
 
 def main():
     colors = ['♥','♦','♠','♣']
     deck = [[value, color] for value in range(1,14) for color in colors]
 
-    world = World(None, 4, colors)
+    world = Action(6, 100)
     # instantiate game with player count
     new_table = Table(world.players, deck)
     # create hands
     new_table.shuffle()
     new_table.sort_hands()
 
+
+    # position = world.first_player()
+
+
+    # if world.pot != previous_pot
+    previous_action = None
+
+
+
+    world.pot = 0
     new_table.flop()
+    world.round(previous_action)
     new_table.turn()
+    world.round(previous_action)
     new_table.river()
+    world.round(previous_action)
 
     new_table.player_score()
+
 
 main()
 
