@@ -9,12 +9,6 @@ class ActionHandler():
         starting_player = random.randint(1, self.players)
         return starting_player
 
-
-class Bot():
-    def random_action():
-        random.randint()
-
-
 class Action(ActionHandler):
     def __init__(self, players, stack):
         self.players = players
@@ -44,14 +38,13 @@ class Action(ActionHandler):
             actions = ['check','bet','call','raise','fold']
         while True:       
             i = 1
-
             print("Player stack: " + str(self.stack))
             print("Pot: " + str(self.pot))
             for action in actions:
                 print("{}. {}".format(i, action))
                 i += 1
-
             response = input()
+            # if player is a bot response = evalute
             if response == 'check' or response == '1':
                 self.check()
                 self.action_stack = 'check'
@@ -91,3 +84,30 @@ class Action(ActionHandler):
                     continue
             elif response == 'fold' or response == '5':
                 pass
+
+class Bot(Action):
+    # sort player hand and board
+    def evaluate(self, board, hand):
+        # need player hand, board, rules
+
+        pass
+    def medium(self):
+        # medium hand (2nd pair)
+        # calls or bets small
+        pass
+    def strong(self):
+        # strong hand
+        # 25% of the time disguise, 75% bet or raise
+        pass
+    def weak(self):
+        # weak semibluff (bottom pair, two overs)
+        # 25% bluff strong 75 fold
+        pass
+    def weaker(self):
+        # very weak
+        # fold
+        pass
+    def nuts(self):
+        # nuts
+        # call, raise, shove river or turn
+        pass
