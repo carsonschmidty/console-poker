@@ -1,6 +1,4 @@
-from inspect import stack
 import random
-
 
 class ActionHandler():
     def __init__(self, hands):
