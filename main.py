@@ -2,12 +2,6 @@ import random
 import os
 import time
 
-from operator import itemgetter
-from turtle import pos
-from types import NoneType
-from winsound import PlaySound
-
-
 from behaviors import Action
 
 # clears console
@@ -393,7 +387,7 @@ def main():
     # preflop
     new_table.shuffle()
     new_table.sort_hands()
-
+    new_table.print_hand()
     # print player 1 hand
 
     # store other hands
