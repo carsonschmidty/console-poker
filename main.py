@@ -379,7 +379,7 @@ def main():
     colors = ['♥','♦','♠','♣']
     deck = [[value, color] for value in range(1,14) for color in colors]
 
-    world = Action(6, 100)
+    world = Action(9, 100)
     # instantiate game with player count
     new_table = Table(world.players, deck)
     # create hands
@@ -401,22 +401,20 @@ def main():
     previous_action = None
     world.pot = 0
 
+    new_table.print_hand()
+
+
     # clear()
     new_table.flop()
-
-
 
     # clear()
     new_table.turn()
 
-
-
     # clear()
     new_table.river()
-
-
 
     # clear()
     new_table.player_score()
     time.sleep(10)
+
 main()
