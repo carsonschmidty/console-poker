@@ -4,8 +4,6 @@ import time
 
 from operator import itemgetter
 
-from behaviors import Action
-
 # clears console
 def clear():
     os.system('cls')
@@ -15,6 +13,7 @@ class Table():
     def __init__(self, players, deck):
         self.players = players
         self.deck = deck
+        self.board=[]
     # shuffle deck, remove items from deck and insert them into the playing hands
     def shuffle(self):
         hands = []
@@ -53,7 +52,6 @@ class Table():
             └────────┘ └────────┘
             """ % (cards[0][1], cards[1][1], cards[0][0], cards[1][0]))
     def flop(self):
-        self.board=[]
         random.shuffle(self.deck)
         for x in range(3):
             self.board.append(self.deck[x])
@@ -79,6 +77,7 @@ class Table():
             │        │ │        │ │        │
             └────────┘ └────────┘ └────────┘ 
         """ % (cards[0][1], cards[1][1], cards[2][1], cards[0][0], cards[1][0], cards[2][0]))
+        return self.board
     def turn(self):
         self.turncard = self.board
         random.shuffle(self.deck)
@@ -105,6 +104,7 @@ class Table():
             │        │ │        │ │        │ │        │
             └────────┘ └────────┘ └────────┘ └────────┘
         """ % (cards[0][1], cards[1][1], cards[2][1], cards[3][1], cards[0][0], cards[1][0], cards[2][0], cards[3][0]))
+        return self.board
     def river(self):
         self.rivercard = self.turncard
         random.shuffle(self.deck)
@@ -132,7 +132,7 @@ class Table():
             └────────┘ └────────┘ └────────┘ └────────┘ └────────┘
         """ % (cards[0][1], cards[1][1], cards[2][1], cards[3][1], cards[4][1],cards[0][0], cards[1][0], cards[2][0], cards[3][0], cards[4][0]))  
         self.board = self.rivercard
-
+        return self.board
     def get_score(self, num):
         score = 0
         if num == 1:
@@ -162,7 +162,6 @@ class Table():
         elif num == 13:
             score = 233
         return score
-
     def player_score(self):
         # compare self.board to each players hand
         players_score = []
@@ -371,54 +370,31 @@ class Table():
         players_score_num = sorted(players_score_num, key=lambda t: t[1])
 
         print("Player/s " + str(player_won) + " won!")
-
+        print("Player's Scores:")
         print(players_score_num)
         self.players_score=players_score
         return self.players_score
 
-
 def main():
     colors = ['♥','♦','♠','♣']
     deck = [[value, color] for value in range(1,14) for color in colors]
-
-    world = Action(6, 100)
     # instantiate game with player count
-    new_table = Table(world.players, deck)
-    # create hands
-
-    # preflop
+    new_table = Table(6, deck)
     new_table.shuffle()
     new_table.sort_hands()
     new_table.print_hand()
-    # print player 1 hand
 
-    # store other hands
-
-    # offer dialogue to each player
-
-    # evaluate winner
-
-    # repeat
-
-    previous_action = None
-    world.pot = 0
-
-    # clear()
+    clear()
     new_table.flop()
-
-
-
-    # clear()
+    time.sleep(2)
+    clear()    
     new_table.turn()
-
-
-
-    # clear()
+    time.sleep(2)
+    clear()
     new_table.river()
-
-
-
-    # clear()
+    time.sleep(2)
+    clear()
     new_table.player_score()
-    time.sleep(10)
+    response = input("Press And Enter Any Button To Run Again")
+    main()
 main()
